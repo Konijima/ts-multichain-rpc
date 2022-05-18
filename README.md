@@ -23,8 +23,12 @@ async function getinfo() {
     return await client.call('getinfo')
 }
 
-async function getblock() {
-    return await client.call('getblock', ['hash or height'])
+async function getblock(hashOrHeight: string | number) {
+    return new Promise((resolve, reject) => {
+      client.call('getblock', [hashOrHeight])
+        .then((result) => resolve(result))
+        .catch((error) => reject(error))
+    })
 }
 ```
 
