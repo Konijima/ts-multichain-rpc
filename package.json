@@ -1,6 +1,6 @@
 {
   "name": "ts-multichain-rpc",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A typescript wrapper for `multichain-cli`",
   "type": "commonjs",
   "main": "./dist/index.js",
