@@ -81,7 +81,7 @@ export default class Client {
 
                 if (response.statusCode === 200) {
                     const json: any = JSON.parse(data)
-                    return callback(null, json.result)
+                    return callback(undefined, json.result)
                 }
 
                 else if (response.headers['content-type'] === "application/json") {

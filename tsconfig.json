@@ -4,15 +4,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "noImplicitAny": true,
+    "strict": true,
+    "declaration": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
-    "typeRoots": [],
-    "types": []
-  },
-  "include": [
-    "src/**/*",
-    "node_modules/@types/**/*"
-  ]
+    "baseUrl": "./"
+  }
 }
