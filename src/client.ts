@@ -15,6 +15,8 @@ export type IConnection = {
     passphrase?: any,
     agent?: any,
     pfx?: any,
+    rejectUnauthorized?: any,
+    secureProtocol?: any,
     [key: string]: any
 }
 
@@ -26,7 +28,7 @@ export default class Client {
         this.connection = connection
     }
 
-    private preCall(method: RpcMethods, params: string[]) {
+    private _preCall(method: RpcMethods, params: string[]) {
         const payload = {
             method: method, 
             params: params || [], 
@@ -57,17 +59,17 @@ export default class Client {
         if (this.connection.user && this.connection.pass) {
             options.auth = this.connection.user + ":" + this.connection.pass
         }
-        return options
+        return { payload, options }
     }
 
-    public call(method: RpcMethods, params: string[], callback: (error?: Error, result?: any) => void) {
+    private _call(method: RpcMethods, params: string[], callback: (error?: Error, result?: any) => void) {
         let request: http.ClientRequest
-        const options = this.preCall(method, params)
+        const { payload, options } = this._preCall(method, params)
 
         if (this.connection.protocol === 'https') request = https.request(options)
         else request = http.request(options)
 
-        let data: any
+        request.write(JSON.stringify(payload))
 
         request.on('error', (error: Error) => {
             callback(error)
@@ -75,7 +77,11 @@ export default class Client {
 
         request.on('response', (response: http.IncomingMessage) => {
 
-            response.on('data', (chunk: any) => data += chunk)
+            let data = ''
+
+            response.on('data', (chunk: any) => {
+                data += chunk
+            })
 
             response.on('end', () => {
 
@@ -89,9 +95,14 @@ export default class Client {
                     return callback(json.error)
                 }
 
-                else {
-                    return callback(data)
+                else if (response.statusCode === 401) {
+                    return callback(new Error('Unauthorized'))
                 }
+
+                else {
+                    return callback(undefined, data)
+                }
+                
             })
 
         })
@@ -99,11 +110,11 @@ export default class Client {
         request.end()
     }
 
-    public async callAsync(method: RpcMethods, params: string[]) {
+    public async call(method: RpcMethods, params: string[] = []) {
         return new Promise<any>((resolve, reject) => {
-            this.call(method, params, (error?: Error, result?: any) => {
-                if (error) reject(error)
-                else resolve(result)
+            this._call(method, params, (error?: Error, result?: any) => {
+                if (error) return reject(error)
+                else return resolve(result)
             })
         })
     }
