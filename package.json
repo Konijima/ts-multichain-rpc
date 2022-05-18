@@ -6,7 +6,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "typescript": "^4.6.4"
+    
   },
   "devDependencies": {
     "@types/node": "^17.0.34",
