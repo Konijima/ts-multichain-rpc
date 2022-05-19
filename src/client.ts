@@ -197,7 +197,7 @@ export default class Client {
      * @param addresses A JSON array of addresses or hex-encoded public keys
      * @param account Optional, An account to assign the addresses to.
      */
-    public async addmultisigaddress(nrequired: number, addresses: string[], account?: string) {
+    public async addmultisigaddress(nrequired: number, addresses: Address[], account?: string) {
         let params: any[] = [nrequired, addresses]
         if (account) params.push(account)
         return await this.call('addmultisigaddress', params)
@@ -206,29 +206,30 @@ export default class Client {
     /**
      * Returns a list of addresses in this node’s wallet. Set verbose to true to get more information about each address, formatted like the output of the validateaddress command. For more control see the new listaddresses command.
      */
-    public async getaddresses(verbose: boolean = false) {
-        return await this.call('getaddresses', [verbose])
+    public async getaddresses(verbose: boolean = false): Promise<Address[] | IAddressInfoVerbose[]> {
+        const result = await this.call('getaddresses', [verbose])
+        return (verbose) ? result as IAddressInfoVerbose[] : result as Address[]
     }
 
     /**
      * Returns a new address whose private key is added to the wallet.
      */
     public async getnewaddress() {
-        return await this.call('getnewaddress')
+        return await this.call('getnewaddress') as Address
     }
 
     /**
      * Adds address (or an array of addresses) to the wallet, without an associated private key. This creates one or more watch-only addresses, whose activity and balance can be retrieved via various APIs (e.g. with the includeWatchOnly parameter), but whose funds cannot be spent by this node. The rescan parameter controls whether and how the blockchain is rescanned for transactions relating to all wallet addresses, including these new ones. Pass true to rescan the entire chain, false to skip rescanning, and from version 1.0.5, a positive integer to rescan from that block number or a negative integer to rescan that many recent blocks.
      * @returns Returns null if successful.
      */
-    public async importaddress(address: string | string[], label: string = '', rescan: boolean = true) {
+    public async importaddress(address: Address | Address[], label: string = '', rescan: boolean = true) {
         return await this.call('importaddress', [address, label, rescan])
     }
 
     /**
      * Returns information about the addresses in the wallet. Provide one or more addresses (comma-delimited or as an array) to retrieve information about specific addresses only, or use * for all addresses in the wallet. Use count and start to retrieve part of the list only, with negative start values (like the default) indicating the most recently created addresses
      */
-    public async listaddresses(addresses: string, verbose: boolean, count: number, start: number): Promise<IAddressInfo[] | IAddressInfoVerbose[]> {
+    public async listaddresses(addresses: Address | Address[], verbose: boolean, count: number, start: number): Promise<IAddressInfo[] | IAddressInfoVerbose[]> {
         const result = await this.call('listaddresses', [addresses, verbose, count, start])
         return (verbose) ? result as IAddressInfoVerbose[] : result as IAddressInfo[]
     }
@@ -243,8 +244,8 @@ export default class Client {
     /**
      * Creates a pay-to-scripthash (P2SH) multisig address. Funds sent to this address can only be spent by transactions signed by nrequired of the specified keys. Each key can be a full hexadecimal public key, or an address if the corresponding key is in the node’s wallet. Returns an object containing the P2SH address and corresponding redeem script.
      */
-    public async createmultisig(nrequired: number, keys: string[]) {
-        return await this.call('createmultisig', [nrequired, keys]) as IP2SH
+    public async createmultisig(nrequired: number, addresses: Address[]) {
+        return await this.call('createmultisig', [nrequired, addresses]) as IP2SH
     }
 
     /**
