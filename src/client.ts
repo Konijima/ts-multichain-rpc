@@ -179,16 +179,18 @@ export default class Client {
 
     /**
      * Returns a list of available API commands, including MultiChain-specific commands.
+     * @param command Optional, help about a specific command
      */
-    public async help() {
-        return await this.call('help')
+    public async help(command?: RpcMethods) {
+        let params = (command) ? [command] : undefined
+        return await this.call('help', params) as string
     }
 
     /**
      * Shuts down the this blockchain node, i.e. stops the multichaind process.
      */
     public async stop() {
-        return await this.call('stop')
+        return await this.call('stop') as string
     }
 
     /**

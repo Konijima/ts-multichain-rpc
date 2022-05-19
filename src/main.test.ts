@@ -12,8 +12,8 @@ import { IAddressInfoVerbose } from "./types";
 
     try {
         
-        const res = await client.getaddresses(true)
-        console.log( res )
+        const res = await client.help('activatelicense')
+        console.log( res, typeof(res) )
         
     }
     catch(error) {
