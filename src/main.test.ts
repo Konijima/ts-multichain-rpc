@@ -1,19 +1,24 @@
 import Client from "./client";
+import { IAddressInfoVerbose } from "./types";
 
 (async function() {
 
     const client = new Client({
         host: '127.0.0.1',
-        port: 8384,
-        user: 'multichainrpc',
-        pass: 'A2Rum4BCNm8BhxmiYoRy53KqBfceLfQtyA4tFCxqy2hs'
+        port: 7777,
+        user: 'test',
+        pass: 'test'
     })
 
-    client.call('getinfo')
-        .then((value) => console.log(value))
-        .catch((error) => console.error(error));
+    try {
+        
+        const res = await client.listaddresses('*', false, 10, 0)
+        console.log( res )
+        
+    }
+    catch(error) {
+        console.error(error)
+    }
 
-    const result = await client.call('getinfo')
-    console.log(result)
 
 })()

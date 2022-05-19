@@ -20,6 +20,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "watch": "tsc --watch",
     "test": "node dist/main.test.js"
   },
   "repository": {
