@@ -62,7 +62,7 @@ If methods is not yet implemented it can still be called using `client.call()`.
 
 ### Permissions management
 - [X] grant
-grantfrom
+- [ ] grantfrom
 - [ ] grantwithdata
 - [ ] grantwithdatafrom
 - [ ] listpermissions
@@ -150,7 +150,7 @@ grantfrom
 - [ ] purgepublisheditems
 - [ ] purgestreamitems
 - [ ] retrievestreamitems
-- [ ] 
+
 ### Managing wallet unspent outputs
 - [ ] combineunspent
 - [ ] listlockunspent
