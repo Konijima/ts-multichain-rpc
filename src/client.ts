@@ -1,6 +1,6 @@
 import * as http from 'http'
 import * as https from 'https'
-import { Address, IAddressInfo, IAddressInfoVerbose, IAddressValidation, IBlockchainParams, IBlockchainParamsDisplayName, IInfo, IInitStatus, IKeyPair, IP2SH, IRunTimeParams, PrivKey, PubKey, RpcMethods, RunTimeParams } from './types'
+import { Address, AssetPermission, IAddressInfo, IAddressInfoVerbose, IAddressValidation, IBlockchainParams, IBlockchainParamsDisplayName, IInfo, IInitStatus, IKeyPair, IP2SH, IRunTimeParams, Permissions, PrivKey, PubKey, RpcMethods, RunTimeParams, txid } from './types'
 
 export type IConnection = {
     host: string,
@@ -138,7 +138,8 @@ export default class Client {
 
     /**
      * Available in MultiChain Enterprise only.
-     * Retrieves a health check for the node. This command can be sent on the regular JSON-RPC API port or on a separate health checking port that will respond even if all main API threads are busy – 
+     * Retrieves a health check for the node. 
+     * This command can be sent on the regular JSON-RPC API port or on a separate health checking port that will respond even if all main API threads are busy – 
      * @see healthcheckport
      */
     public async gethealthcheck() {
@@ -146,7 +147,8 @@ export default class Client {
     }
 
     /**
-     * Returns a selection of this node’s runtime parameters, which are set when the node starts up. Some parameters can be modified while MultiChain is running using setruntimeparam.
+     * Returns a selection of this node’s runtime parameters, which are set when the node starts up. 
+     * Some parameters can be modified while MultiChain is running using setruntimeparam.
      */
     public async getruntimeparams() {
         return await this.call('getruntimeparams') as IRunTimeParams
@@ -164,14 +166,20 @@ export default class Client {
     }
 
     /**
-     * Returns general information about this node and blockchain. MultiChain adds some fields to Bitcoin Core’s response, giving the blockchain’s chainname, description, protocol, peer-to-peer port. There are also incomingpaused and miningpaused fields – see the pause command. The burnaddress is an address with no known private key, to which assets can be sent to make them provably unspendable. The nodeaddress can be passed to other nodes for connecting. The setupblocks field gives the length in blocks of the setup phase in which some consensus constraints are not applied.
+     * Returns general information about this node and blockchain. 
+     * MultiChain adds some fields to Bitcoin Core’s response, giving the blockchain’s chainname, description, protocol, peer-to-peer port. 
+     * There are also incomingpaused and miningpaused fields – see the pause command. 
+     * The burnaddress is an address with no known private key, to which assets can be sent to make them provably unspendable. 
+     * The nodeaddress can be passed to other nodes for connecting. 
+     * The setupblocks field gives the length in blocks of the setup phase in which some consensus constraints are not applied.
      */
     public async getinfo() {
         return await this.call('getinfo') as IInfo
     }
 
     /**
-     * Returns information about the node’s initialization status, during its initial connection to a new blockchain. This is relevant if the retryinittime runtime parameter is used.
+     * Returns information about the node’s initialization status, during its initial connection to a new blockchain. 
+     * This is relevant if the retryinittime runtime parameter is used.
      */
     public async getinitstatus() {
         return await this.call('getinitstatus') as IInitStatus
@@ -194,10 +202,14 @@ export default class Client {
     }
 
     /**
-     * Creates a pay-to-scripthash (P2SH) multisig address and adds it to the wallet. Funds sent to this address can only be spent by transactions signed by nrequired of the specified keys. Each key can be a full public key, or an address if the corresponding key is in the node’s wallet. (Public keys for a wallet’s addresses can be obtained using the getaddresses call with verbose=true.) Returns the P2SH address.
+     * Creates a pay-to-scripthash (P2SH) multisig address and adds it to the wallet. 
+     * Funds sent to this address can only be spent by transactions signed by nrequired of the specified keys. 
+     * Each key can be a full public key, or an address if the corresponding key is in the node’s wallet. 
+     * (Public keys for a wallet’s addresses can be obtained using the getaddresses call with verbose=true.) 
      * @param nrequired The number of required signatures out of the n keys or addresses.
      * @param addresses A JSON array of addresses or hex-encoded public keys
      * @param account Optional, An account to assign the addresses to.
+     * @returns the P2SH address.
      */
     public async addmultisigaddress(nrequired: number, addresses: Address[], account?: string) {
         let params: any[] = [nrequired, addresses]
@@ -206,7 +218,9 @@ export default class Client {
     }
 
     /**
-     * Returns a list of addresses in this node’s wallet. Set verbose to true to get more information about each address, formatted like the output of the validateaddress command. For more control see the new listaddresses command.
+     * Returns a list of addresses in this node’s wallet. 
+     * Set verbose to true to get more information about each address, formatted like the output of the validateaddress command. 
+     * For more control see the new listaddresses command.
      */
     public async getaddresses(verbose: boolean = false): Promise<Address[] | IAddressInfoVerbose[]> {
         const result = await this.call('getaddresses', [verbose])
@@ -216,12 +230,15 @@ export default class Client {
     /**
      * Returns a new address whose private key is added to the wallet.
      */
-    public async getnewaddress() {
-        return await this.call('getnewaddress') as Address
+    public async getnewaddress(): Promise<Address> {
+        return (await this.call('getnewaddress')) as Address
     }
 
     /**
-     * Adds address (or an array of addresses) to the wallet, without an associated private key. This creates one or more watch-only addresses, whose activity and balance can be retrieved via various APIs (e.g. with the includeWatchOnly parameter), but whose funds cannot be spent by this node. The rescan parameter controls whether and how the blockchain is rescanned for transactions relating to all wallet addresses, including these new ones. Pass true to rescan the entire chain, false to skip rescanning, and from version 1.0.5, a positive integer to rescan from that block number or a negative integer to rescan that many recent blocks.
+     * Adds address (or an array of addresses) to the wallet, without an associated private key. 
+     * This creates one or more watch-only addresses, whose activity and balance can be retrieved via various APIs (e.g. with the includeWatchOnly parameter), but whose funds cannot be spent by this node. 
+     * The rescan parameter controls whether and how the blockchain is rescanned for transactions relating to all wallet addresses, including these new ones. 
+     * Pass true to rescan the entire chain, false to skip rescanning, and from version 1.0.5, a positive integer to rescan from that block number or a negative integer to rescan that many recent blocks.
      * @returns Returns null if successful.
      */
     public async importaddress(address: Address | Address[], label: string = '', rescan: boolean = true) {
@@ -229,7 +246,9 @@ export default class Client {
     }
 
     /**
-     * Returns information about the addresses in the wallet. Provide one or more addresses (comma-delimited or as an array) to retrieve information about specific addresses only, or use * for all addresses in the wallet. Use count and start to retrieve part of the list only, with negative start values (like the default) indicating the most recently created addresses
+     * Returns information about the addresses in the wallet. 
+     * Provide one or more addresses (comma-delimited or as an array) to retrieve information about specific addresses only, or use * for all addresses in the wallet. 
+     * Use count and start to retrieve part of the list only, with negative start values (like the default) indicating the most recently created addresses
      */
     public async listaddresses(addresses: Address | Address[], verbose: boolean, count: number, start: number): Promise<IAddressInfo[] | IAddressInfoVerbose[]> {
         const result = await this.call('listaddresses', [addresses, verbose, count, start])
@@ -237,14 +256,18 @@ export default class Client {
     }
 
     /**
-     * Generates one or more public/private key pairs, which are not stored in the wallet or drawn from the node’s key pool, ready for external key management. For each key pair, the address, pubkey (as embedded in transaction inputs) and privkey (used for signatures) is provided.
+     * Generates one or more public/private key pairs, which are not stored in the wallet or drawn from the node’s key pool, ready for external key management. 
+     * For each key pair, the address, pubkey (as embedded in transaction inputs) and privkey (used for signatures) is provided.
      */
     public async createkeypairs(count: number = 1) {
         return await this.call('createkeypairs', [count]) as IKeyPair[]
     }
 
     /**
-     * Creates a pay-to-scripthash (P2SH) multisig address. Funds sent to this address can only be spent by transactions signed by nrequired of the specified keys. Each key can be a full hexadecimal public key, or an address if the corresponding key is in the node’s wallet. Returns an object containing the P2SH address and corresponding redeem script.
+     * Creates a pay-to-scripthash (P2SH) multisig address. 
+     * Funds sent to this address can only be spent by transactions signed by nrequired of the specified keys. 
+     * Each key can be a full hexadecimal public key, or an address if the corresponding key is in the node’s wallet. 
+     * @returns an object containing the P2SH address and corresponding redeem script.
      */
     public async createmultisig(nrequired: number, addresses: Address[]) {
         return await this.call('createmultisig', [nrequired, addresses]) as IP2SH
@@ -258,10 +281,35 @@ export default class Client {
     }
 
     /**
-     * 
+     * Grants permissions to addresses, a comma-separated list of addresses. 
+     * For global permissions, set permissions to one of connect, send, receive, create, issue, mine, activate, admin, or a comma-separated list thereof. 
+     * Use mine with caution – if too many addresses with mine permissions become inactive, your chain could become stuck (see mining-diversity blockchain parameter). 
+     * For per-asset, per-stream, per-variable and per-library permissions, use the form entity.permission or entity.permission,permission,... where entity is the entity name, ref or creation txid and each permission is a relevant permission for that entity type. 
+     * Relevant permissions are issue,send,receive,activate,admin for assets, write,read,activate,admin for streams and write,activate,admin for variables and libraries. 
+     * (Each grant command can only assign global permissions, or permissions for a single entity.) 
+     * If the chain uses a native currency, you can send some to each recipient using the native-amount parameter. 
+     * @param addresses List of addresses to send to
+     * @param permission List of permission to grant
+     * @param nativeAmount Native currency amount to send. eg 0.1. Default - 0.0
+     * @param startBlock Block to apply permissions from (inclusive). Default - 0
+     * @param endBlock Block to apply permissions to (exclusive). Default - 4294967295
+     * @param comment
+     * @param commentTo
+     * @returns the txid of the grant transaction sent.
+     * @see [MultiChain permissions management](https://www.multichain.com/developers/permissions-management/)
      */
-    public async grant() {
-        return await this.call('grant')
+    public async grant(addresses: Address[], permission: (Permissions | AssetPermission)[], nativeAmount?: number, startBlock?: number, endBlock?: number, comment?: string, commentTo?: string): Promise<txid> {
+        const permissions: any[] = []
+        for (let i = 0; i < permission.length; i++) {
+            if (typeof(permission[i]) === 'string') {
+                permissions.push(permission[i])
+            }
+            else {
+                const perm = permission[i] as AssetPermission
+                permissions.push(perm.identifier + '.' + perm.permission)
+            }
+        }
+        return await this.call('grant', [addresses.join(','), permissions.join(','), nativeAmount || 0, startBlock || 0, endBlock || -1, comment, commentTo]) as txid
     }
 
     /**

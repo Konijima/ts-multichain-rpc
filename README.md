@@ -34,3 +34,31 @@ async function getblock(hashOrHeight: string | number) {
 
 ## Commands
 [MultiChain JSON-RPC API commands](https://www.multichain.com/developers/json-rpc-api/)
+
+## Method Implemented
+```js
+// General utilities
+'getblockchainparams'
+'gethealthcheck'
+'getruntimeparams'
+'setruntimeparam'
+'getinfo'
+'getinitstatus'
+'help'
+'stop'
+
+// Managing wallet addresses
+'addmultisigaddress'
+'getaddresses'
+'getnewaddress'
+'importaddress'
+'listaddresses'
+
+// Working with non-wallet addresses
+'createkeypairs'
+'createmultisig'
+'validateaddress'
+
+// Permissions management
+'grant'
+```

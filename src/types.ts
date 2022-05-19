@@ -481,3 +481,9 @@ export interface IP2SH {
     address: Address
     redeemScript: string
 }
+
+export type Permissions = 'connect' | 'send' | 'receive' | 'issue' | 'mine' | 'admin' | 'activate' | 'create'
+
+export type AssetPermission = { identifier: string, permission: Permissions }
+
+export type txid = string
