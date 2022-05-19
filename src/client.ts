@@ -1,6 +1,6 @@
 import * as http from 'http'
 import * as https from 'https'
-import { IAddressInfo, IAddressInfoVerbose, IBlockchainParams, IBlockchainParamsDisplayName, IInfo, IInitStatus, IRunTimeParams, RpcMethods, RunTimeParams } from './types'
+import { Address, IAddressInfo, IAddressInfoVerbose, IAddressValidation, IBlockchainParams, IBlockchainParamsDisplayName, IInfo, IInitStatus, IKeyPair, IP2SH, IRunTimeParams, PrivKey, PubKey, RpcMethods, RunTimeParams } from './types'
 
 export type IConnection = {
     host: string,
@@ -234,24 +234,24 @@ export default class Client {
     }
 
     /**
-     * 
+     * Generates one or more public/private key pairs, which are not stored in the wallet or drawn from the node’s key pool, ready for external key management. For each key pair, the address, pubkey (as embedded in transaction inputs) and privkey (used for signatures) is provided.
      */
-    public async createkeypairs() {
-        return await this.call('createkeypairs')
+    public async createkeypairs(count: number = 1) {
+        return await this.call('createkeypairs', [count]) as IKeyPair[]
     }
 
     /**
-     * 
+     * Creates a pay-to-scripthash (P2SH) multisig address. Funds sent to this address can only be spent by transactions signed by nrequired of the specified keys. Each key can be a full hexadecimal public key, or an address if the corresponding key is in the node’s wallet. Returns an object containing the P2SH address and corresponding redeem script.
      */
-    public async createmultisig() {
-        return await this.call('createmultisig')
+    public async createmultisig(nrequired: number, keys: string[]) {
+        return await this.call('createmultisig', [nrequired, keys]) as IP2SH
     }
 
     /**
-     * 
+     * Returns information about address, or the address corresponding to the specified privkey private key or pubkey public key, including whether this node has the address’s private key in its wallet.
      */
-    public async validateaddress() {
-        return await this.call('validateaddress')
+    public async validateaddress(address: Address | PubKey | PrivKey) {
+        return await this.call('validateaddress', [address]) as IAddressValidation
     }
 
     /**

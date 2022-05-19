@@ -445,18 +445,39 @@ export interface IInitStatus {
 
 export interface IAddressInfo
 {
-    address: string
+    address: Address
     ismine: boolean
 }
 
 export interface IAddressInfoVerbose
 {
-    address: string
+    address: Address
     ismine: boolean
     iswatchonly: boolean
     isscript: boolean
-    pubkey: string
+    pubkey: PubKey
     iscompressed: boolean
     account: string
     synchronized: boolean
+}
+
+export interface IKeyPair {
+    address: Address
+    pubkey: PubKey
+    privkey: PrivKey
+}
+
+export type Address = string
+export type PubKey = string
+export type PrivKey = string
+
+export interface IAddressValidation {
+    isvalid: boolean
+    address: string
+    ismine: boolean
+}
+
+export interface IP2SH {
+    address: Address
+    redeemScript: string
 }
